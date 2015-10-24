@@ -23,12 +23,13 @@ grails.project.dependency.resolution = {
 
     repositories {
         inherits true // Whether to inherit repository definitions from plugins
+        mavenLocal()
 
         grailsPlugins()
         grailsHome()
         grailsCentral()
 
-        mavenLocal()
+
         mavenCentral()
 
         // uncomment these (or add new ones) to enable remote dependency resolution from public Maven repositories
@@ -43,6 +44,7 @@ grails.project.dependency.resolution = {
 
         // runtime 'mysql:mysql-connector-java:5.1.22'
         compile 'org.apache.curator:curator-recipes:2.8.0'
+        compile "org.spockframework:spock-grails-support:0.7-groovy-2.0"
     }
 
     plugins {
@@ -61,5 +63,9 @@ grails.project.dependency.resolution = {
         runtime ":database-migration:1.3.2"
 
         compile ':cache:1.0.1'
+        compile (":spock:0.7") {
+            exclude "spock-grails-support"
+        }
+
     }
 }
