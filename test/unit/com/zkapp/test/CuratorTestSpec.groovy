@@ -3,6 +3,8 @@ package com.zkapp.test
 import com.zkapp.TestAPI
 import grails.test.mixin.TestFor
 import groovy.util.logging.Log4j
+import org.apache.curator.framework.recipes.cache.NodeCache
+import org.apache.curator.framework.recipes.cache.TreeCache
 import org.apache.zookeeper.CreateMode
 import spock.lang.Ignore
 import spock.lang.Specification
@@ -28,7 +30,6 @@ class CuratorTestSpec extends Specification {
     }
 
 
-    @Ignore
     def "test delete node"() {
         when:
         TestAPI.deleteNode(path)
@@ -43,7 +44,70 @@ class CuratorTestSpec extends Specification {
         TestAPI.nodeExists(path2)
     }
 
+
+    def "create a node cache"() {
+        when:
+        TestAPI.Holder holder = TestAPI.newHolder()
+        NodeCache cache = TestAPI.setNodeCache(path,holder)
+
+        TestAPI.createNode(path + "/child1")
+        TestAPI.createNode(path + "/child2")
+        TestAPI.setData(path, "dataString")
+        TestAPI.setData(path + "/child1", "dataString")
+        Thread.sleep(4000)
+        then:
+        holder.event == 1
+
+        cleanup:
+        TestAPI.deleteNode(path + "/child1")
+        TestAPI.deleteNode(path + "/child2")
+        TestAPI.deleteNode(path)
+        cache.close()
+    }
+
+    def "create a tree cache"() {
+        when:
+        TestAPI.Holder holder = new TestAPI.Holder();
+        TreeCache cache = TestAPI.setTreeCache(path,holder)
+
+        TestAPI.createNode(path + "/child1")
+        TestAPI.createNode(path + "/child2")
+        TestAPI.setData(path, "dataString")
+        TestAPI.setData(path + "/child1", "dataString")
+        Thread.sleep(4000)
+        then:
+
+        holder.event == 1
+
+        cleanup:
+        TestAPI.deleteNode(path + "/child1")
+        TestAPI.deleteNode(path + "/child2")
+        TestAPI.deleteNode(path)
+        cache.close()
+
+    }
+
+    def "create a watch"() {
+        when:
+        TestAPI.Holder holder = TestAPI.newHolder()
+        TestAPI.setPathChildrenCache(path,holder)
+
+        TestAPI.createNode(path + "/child1")
+        TestAPI.createNode(path + "/child2")
+        TestAPI.setData(path, "dataString")
+        TestAPI.setData(path + "/child1", "dataString")
+        Thread.sleep(2000)
+        then:
+        holder.event == 3
+
+        cleanup:
+        TestAPI.deleteNode(path + "/child1")
+        TestAPI.deleteNode(path + "/child2")
+        TestAPI.deleteNode(path)
+
+    }
+
     void cleanupSpec() {
-//        TestAPI.shutdown()
+        TestAPI.shutdown()
     }
 }
