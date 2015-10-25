@@ -110,4 +110,17 @@ class TestAPI {
     static class Holder {
         int event = 0
     }
+    public static void main(String[] args) {
+        String path = "/zkapp/test"
+        createNode(path)
+        PathChildrenCache cache = new PathChildrenCache(client,path,true)
+        cache.getListenable().addListener(new PathChildrenCacheListener() {
+            @Override
+            void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
+                println event.type
+            }
+        })
+        cache.start()
+        Thread.sleep(10000000)
+    }
 }

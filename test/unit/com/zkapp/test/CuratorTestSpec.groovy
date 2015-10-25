@@ -1,12 +1,10 @@
 package com.zkapp.test
 
 import com.zkapp.TestAPI
-import grails.test.mixin.TestFor
 import groovy.util.logging.Log4j
 import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.curator.framework.recipes.cache.TreeCache
 import org.apache.zookeeper.CreateMode
-import spock.lang.Ignore
 import spock.lang.Specification
 
 /**
@@ -56,7 +54,7 @@ class CuratorTestSpec extends Specification {
         TestAPI.setData(path + "/child1", "dataString")
         Thread.sleep(4000)
         then:
-        holder.event == 1
+        holder.event == 2
 
         cleanup:
         TestAPI.deleteNode(path + "/child1")
@@ -77,7 +75,7 @@ class CuratorTestSpec extends Specification {
         Thread.sleep(4000)
         then:
 
-        holder.event == 1
+        holder.event == 6
 
         cleanup:
         TestAPI.deleteNode(path + "/child1")
@@ -87,7 +85,7 @@ class CuratorTestSpec extends Specification {
 
     }
 
-    def "create a watch"() {
+    def "create a path childred cache"() {
         when:
         TestAPI.Holder holder = TestAPI.newHolder()
         TestAPI.setPathChildrenCache(path,holder)
@@ -96,9 +94,10 @@ class CuratorTestSpec extends Specification {
         TestAPI.createNode(path + "/child2")
         TestAPI.setData(path, "dataString")
         TestAPI.setData(path + "/child1", "dataString")
+        TestAPI.deleteNode(path + "/child1")
         Thread.sleep(2000)
         then:
-        holder.event == 3
+        holder.event == 4
 
         cleanup:
         TestAPI.deleteNode(path + "/child1")
@@ -108,6 +107,6 @@ class CuratorTestSpec extends Specification {
     }
 
     void cleanupSpec() {
-        TestAPI.shutdown()
+        //TestAPI.shutdown()
     }
 }
