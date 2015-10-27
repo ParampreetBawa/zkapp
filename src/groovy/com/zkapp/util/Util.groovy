@@ -20,11 +20,6 @@ class Util {
     }
 
     public static void init() {
-        boolean isCoordinator = ApplicationContextHolder.instance.config.coordinator.enabled
-        if(isCoordinator) {
-            new CoordinatorNode();
-        }
-
         boolean isWorker = ApplicationContextHolder.instance.config.worker.enabled
         if (isWorker) {
             new WorkerNode();

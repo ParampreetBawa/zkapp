@@ -1,6 +1,7 @@
 package com.zkapp.util
 
 import com.zkapp.ApplicationContextHolder
+import com.zkapp.worker.WorkerNode
 import org.apache.curator.RetryPolicy
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.CuratorFrameworkFactory
@@ -51,6 +52,14 @@ class CuratorUtil {
 
         CuratorFramework client = getClient();
         client.create().creatingParentsIfNeeded().withMode(createMode).forPath(path,new byte[0])
+    }
+
+    public static boolean isLeader() {
+        Set<String> workers = CuratorUtil.client.getChildren().forPath(WorkerNode.WORKER_NODE_PATH) as Set
+        if(workers.size() > 0 ) {
+            return workers.first() == Util.getAddress()
+        }
+        return false
     }
 
     public static void writeData(String path, String data) {
